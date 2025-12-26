@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Expense Tracker</title>
+  <link rel="stylesheet" href="vendor/bootstrap.min.css" />
+  <link rel="stylesheet" href="vendor/bootstrap-icons.css" />
+  <style>
+    
+    body {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s;
+    }
+    body.dark-mode {
+    background-color: #1a1b1e;
+    }
+    .container {
+    margin-top: 40px;
+    max-width: 680px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.10);
+    padding: 24px;
+    transition: background 0.2s, color 0.2s;
+    }
+    body.dark-mode .container {
+    background: #23272f;
+    color: #d7dadc;
+    }
+    .modal-content {
+    border-radius: 12px;
+    }
+    #totalSpent {
+    font-size: 1.25em;
+    font-weight: bold;
+    color: #198754;
+    }
+    body.dark-mode #totalSpent {
+    color: #2ecc71;
+    }
+    .form-switch .form-check-input {
+    width: 3em;
+    height: 1.5em;
+    border-radius: 2em;
+    background: #e0e0e0;
+    transition: background 0.2s;
+    box-shadow: none;
+    }
+    .form-check-input:checked {
+    background-color: #18201c;
+    }
+    /* DARK MODE TABLE STYLES */
+    body.dark-mode .table {
+    background-color: #29323a;
+    color: #f1f1f1;
+    }
+    body.dark-mode .table th,
+    body.dark-mode .table td {
+    background-color: #29323a !important;
+    color: #f1f1f1 !important;
+    border-color: #444950;
+    }
+    body.dark-mode .table thead th {
+    background-color: #22272e !important;
+    color: #47e9ec !important;
+    }
+    body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: #34404a !important;
+    }
+    body.dark-mode #expenseTableBody td:first-child {
+    background: #29434e !important;
+    color: #fce4ec !important;
+    }
+
+
+
+  </style>
+</head>
+<body>
+    
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+      <span class="navbar-brand"><i class="bi bi-wallet2"></i> Expense Tracker</span>
+      <div class="form-check form-switch ms-4">
+        <input class="form-check-input" type="checkbox" id="darkModeSlider" />
+        
+      </div>
+    </div>
+  </nav>
+
+  
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">Your Expenses</h2>
+      <div>
+        <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#addExpenseModal">
+          <i class="bi bi-plus-lg"></i> Add Expense
+        </button>
+        <button class="btn btn-outline-danger" id="resetExpensesBtn">
+          <i class="bi bi-trash"></i> Reset Expenses
+        </button>
+      </div>
+    </div>
+
+    
+    <div class="table-responsive mb-3">
+      <table class="table table-striped align-middle" id="expenseTable">
+        <thead class="table-light">
+          <tr>
+            <th>Description</th>
+            <th>Date</th>
+            <th class="text-end">Amount (₹)</th>
+          </tr>
+        </thead>
+        <tbody id="expenseTableBody">
+         
+        </tbody>
+      </table>
+    </div>
+
+    
+    <div class="text-end">
+      <span>Total Spent: </span>
+      <span id="totalSpent">0</span>
+    </div>
+  </div>
+
+
+  <div class="modal fade" id="addExpenseModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <form id="addExpenseForm">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add Expense</h5>
+
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="expenseDescription" class="form-label">Description</label>
+              <input type="text" class="form-control" id="expenseDescription" required />
+            </div>
+
+            <div class="mb-3">
+              <label for="expenseAmount" class="form-label">Amount (₹)</label>
+              <input type="number" class="form-control" id="expenseAmount" required min="1" />
+            </div>
+
+            <div class="mb-3">
+              <label for="expenseDate" class="form-label">Date</label>
+              <input type="date" class="form-control" id="expenseDate" required />
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Expense</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  
+  <script src="vendor/jquery.min.js"></script>
+  <script src="vendor/bootstrap.bundle.min.js"></script>
+  <script>
+    
+    function getExpenses() {
+      const expenses = localStorage.getItem('expenseStorage');
+      return expenses ? JSON.parse(expenses) : [];
+    }
+    
+    function saveExpenses(expenses) {
+      localStorage.setItem('expenseStorage', JSON.stringify(expenses));
+    }
+    
+    function renderExpenses() {
+      const expenses = getExpenses();
+      const tbody = document.getElementById('expenseTableBody');
+      tbody.innerHTML = '';
+      let total = 0;
+
+      if (expenses.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center">No expenses added yet</td></tr>';
+      } else {
+        expenses.forEach(exp => {
+          total += parseFloat(exp.amount);
+
+          tbody.innerHTML += `
+            <tr>
+              <td>${exp.description}</td>
+              <td>${exp.date}</td>
+              <td class="text-end">${exp.amount}</td>
+            </tr>
+          `;
+        });
+
+      }
+      document.getElementById('totalSpent').textContent = total;
+    }
+    
+    const form = document.getElementById('addExpenseForm');
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const description = document.getElementById('expenseDescription').value.trim();
+      const amount = document.getElementById('expenseAmount').value;
+      const date = document.getElementById('expenseDate').value;
+
+      if (!description || !amount || !date) {
+        alert('Please fill all fields.');
+        return;
+      }
+
+      const expense = { description, amount, date };
+      const expenses = getExpenses();
+      expenses.push(expense);
+      saveExpenses(expenses);
+      renderExpenses();
+
+      form.reset();
+      const modalEl = document.getElementById('addExpenseModal');
+      const modalObj = bootstrap.Modal.getInstance(modalEl);
+      modalObj.hide();
+    });
+    
+    $('#resetExpensesBtn').on('click', function () {
+      if (confirm('Are you sure you want to clear all expenses?')) {
+        localStorage.removeItem('expenseStorage');
+        renderExpenses();
+      }
+    });
+
+
+    // Dark/light slider switch code
+    const darkModeSlider = document.getElementById('darkModeSlider');
+    darkModeSlider.addEventListener('change', function () {
+      document.body.classList.toggle('dark-mode');
+      localStorage.setItem('expenseDarkMode', document.body.classList.contains('dark-mode') ? 'on' : 'off');
+    });
+
+
+    window.onload = function() {
+      if (localStorage.getItem('expenseDarkMode') === 'on') {
+        document.body.classList.add('dark-mode');
+        darkModeSlider.checked = true;
+      } else {
+        document.body.classList.remove('dark-mode');
+        darkModeSlider.checked = false;
+      }
+      renderExpenses();
+    };
+
+
+  </script>
+</body>
+</html>
