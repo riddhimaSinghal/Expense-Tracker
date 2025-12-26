@@ -1,6 +1,10 @@
 # Expense Tracker
 
-Expense Tracker is a simple web application that helps users manage and track their daily expenses. It allows users to add expenses, view transaction history, and understand their spending patterns through a clean and easy-to-use interface.
+Expense Tracker is a simple web application that helps users manage and track their daily expenses. It allows users to add expenses, view transaction history, and understand their spending patterns through a clean and easy-to-use interface. It is built using:
+- HTML  
+- CSS  
+- JavaScript
+
 
 ## Features
 
@@ -10,15 +14,7 @@ Expense Tracker is a simple web application that helps users manage and track th
 - Simple and user-friendly UI
 - Works directly in the browser
 
-## Tech Stack
-
-- HTML  
-- CSS  
-- JavaScript  
-
-## Getting Started
-
-Follow these steps to run the project locally:
+## How to run
 
 1. Download or clone this repository.
 2. Extract the files if downloaded as ZIP.
@@ -33,6 +29,4 @@ The application will start running locally.
 2. Enter the amount.
 3. Click on **Add** to save the expense.
 4. The expense will appear in the list and update the total.
-
-## Folder Structure
 
